@@ -2,31 +2,35 @@
 package main
 
 import "github.com/fatih/color"
+import "math"
 
 type box struct {
-	l int
-	w int
-	h int
+	l float64
+	w float64
+	h float64
 }
 
-var maxHeightR = 0
+var maxHeightR float64 = 0.0
 
-type boxesS []box
+type ByArea []box
 
-func (c boxesS) Len() int      { return len(c) }
-func (c boxesS) Swap(i, j int) { c[i], c[j] = c[j], c[i] }
+func (c ByArea) Len() int      { return len(c) }
+func (c ByArea) Swap(i, j int) { c[i], c[j] = c[j], c[i] }
+func (c ByArea) Less(i, j int) bool {
+	a := c[i].l * c[i].w
+	b := c[j].l * c[j].w
+	return a > b
+}
 
-// func (c boxesS) Less(i, j int) bool { return c[i].area > c[j].area }
-
-func (b box) area() int {
+func (b box) area() float64 {
 	return b.l * b.w
 }
 
-func (b box) compare(compare box) int {
+func (b box) compare(compare box) float64 {
 	return b.area() - compare.area()
 }
 
-func BoxStack(b [][]int) int {
+func BoxStack(b [][]float64) float64 {
 	if len(b) <= 0 {
 		color.Red("Not a valid length")
 	}
@@ -40,9 +44,8 @@ func BoxStack(b [][]int) int {
 	maxHeightR = 0
 	boxStackHelper(boxes, len(boxes)-1)
 	return maxHeightR
-	// sort.Sort(boxesS(boxes))
 }
-func boxStackHelper(b []box, pos int) int {
+func boxStackHelper(b []box, pos int) float64 {
 	if pos < 0 {
 		return 0
 	}
@@ -50,10 +53,11 @@ func boxStackHelper(b []box, pos int) int {
 	for i := 0; i < pos; i++ {
 		a := boxStackHelper(b, i)
 		if b[i].l < b[pos].l && b[i].w < b[pos].w {
-			maxHeight = findMax(maxHeight, a+b[pos].h)
+			maxHeight = math.Max(maxHeight, a+b[pos].h)
 		}
 	}
-	maxHeightR = findMax(maxHeight, maxHeightR)
+	maxHeightR = math.Max(maxHeight, maxHeightR)
+	// maxHeightR = findMax(maxHeight, maxHeightR)
 	return maxHeight
 }
 
@@ -66,25 +70,19 @@ func findMax(a int, b int) int {
 }
 
 func main() {
-	var test1 = [][]int{
+	var test1 = [][]float64{
 		{5, 5, 1},
 		{4, 5, 2},
 	}
-	var test2 = [][]int{
+	var test2 = [][]float64{
 		{4, 6, 7},
 		{1, 2, 3},
 		{4, 5, 6},
 		{10, 12, 32},
 	}
 
-	// color.Red("%v", len(test1))
-	// for i := 0; i < 2; i++ {
-	// 	for j := 0; j < 3; j++ {
-	// 		fmt.Print(test1[i][j])
-	// 		fmt.Print(" ")
-	// 	}
-	// 	fmt.Println()
-	// }
 	result := BoxStack(test1)
+	color.Red("%v", result)
+	result = BoxStack(test2)
 	color.Red("%v", result)
 }
